@@ -43,6 +43,10 @@
       <HintPath>BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -69,6 +73,10 @@
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>UnityEngine.Physics2DModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
@@ -153,6 +161,12 @@
     <Compile Include="recipe\patches\RecipeResultSpritePatch.cs" />
     <Compile Include="recipe\patches\RecipesSetUpRecipesPatch.cs" />
     <Compile Include="recipe\RecipeBuilder.cs" />
+    <Compile Include="save\ICustomItemSaveable.cs" />
+    <Compile Include="save\MissingItemTag.cs" />
+    <Compile Include="save\patches\SaveGamePatch.cs" />
+    <Compile Include="save\patches\TryLoadGamePatch.cs" />
+    <Compile Include="save\SaveCompanionFile.cs" />
+    <Compile Include="save\SaveDataSchema.cs" />
     <Compile Include="ScavLibPlugin.cs" />
     <Compile Include="util\GameUtil.cs" />
     <Compile Include="util\ItemUtil.cs" />

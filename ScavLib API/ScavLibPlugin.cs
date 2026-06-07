@@ -15,7 +15,7 @@ namespace ScavLib
     public class ScavLibPlugin : BaseUnityPlugin
     {
 
-        public const string Version = "0.7.0";
+        public const string Version = "0.7.1";
 
         public static ScavLibPlugin Instance { get; private set; }
         internal static ManualLogSource Log { get; private set; }
@@ -86,6 +86,9 @@ namespace ScavLib
                 typeof(recipe.patches.RecipesSetUpRecipesPatch),
                 typeof(recipe.patches.RecipeResultSpritePatch),
                 typeof(i18n.patches.LocaleLoadLanguagePatch),
+
+                typeof(save.patches.SaveGamePatch),
+                typeof(save.patches.TryLoadGamePatch),
             };
 
             foreach (var t in patchTypes)
