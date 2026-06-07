@@ -129,8 +129,24 @@ namespace ScavLib.util
 
         public static float XpMultiplier
         {
-            get => Skills.xpGainMult;
-            set => Skills.xpGainMult = Mathf.Max(0f, value);
+            get
+            {
+                if (WorldGeneration.runSettings == null ||
+                    !WorldGeneration.runSettings.ContainsKey("xpgain"))
+                    return 1f;
+                return Skills.xpGainMult;
+            }
+            set
+            {
+                if (WorldGeneration.runSettings == null)
+                {
+                    ScavLibPlugin.Log.LogWarning(
+                        "[SkillUtil] Cannot set XpMultiplier: run settings not " +
+                        "initialized yet (no world loaded).");
+                    return;
+                }
+                WorldGeneration.runSettings["xpgain"] = Mathf.Max(0f, value);
+            }
         }
 
         public static int GetExperienceForLevel(int targetLevel)

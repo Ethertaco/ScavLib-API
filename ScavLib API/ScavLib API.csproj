@@ -7,7 +7,7 @@
     <ProjectGuid>{7CA6ED74-355F-42F3-B733-F28F1A35E2AA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ScavLib_API</RootNamespace>
+    <RootNamespace>ScavLib</RootNamespace>
     <AssemblyName>ScavLib API</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -89,6 +89,7 @@
     <Compile Include="command\CommandRegistry.cs" />
     <Compile Include="command\CommandRegistryPatch.cs" />
     <Compile Include="command\ScavLibCommand.cs" />
+    <Compile Include="compat\RivalFrameworkDetector.cs" />
     <Compile Include="config\ConfigManager.cs" />
     <Compile Include="event\BusEvent.cs" />
     <Compile Include="event\EventBus.cs" />
@@ -128,8 +129,19 @@
     <Compile Include="gui\ugui\UguiTheme.With.cs" />
     <Compile Include="gui\ugui\UguiToggleGroup.cs" />
     <Compile Include="gui\ugui\UguiWindowBase.cs" />
+    <Compile Include="i18n\LocaleRegistry.cs" />
+    <Compile Include="i18n\patches\LocaleLoadLanguagePatch.cs" />
+    <Compile Include="item\CustomItem.cs" />
+    <Compile Include="item\CustomItemBuilder.cs" />
     <Compile Include="item\CustomItemRegistry.cs" />
-    <Compile Include="item\ItemRegistryPatch.cs" />
+    <Compile Include="item\CustomItemTag.cs" />
+    <Compile Include="item\patches\ConsoleSpawnAutofillPatch.cs" />
+    <Compile Include="item\patches\ItemSetupItemsPatch.cs" />
+    <Compile Include="item\ItemTemplate.cs" />
+    <Compile Include="item\patches\UtilsCreatePatch.cs" />
+    <Compile Include="item\PrefabTemplateCache.cs" />
+    <Compile Include="liquid\CustomLiquidBuilder.cs" />
+    <Compile Include="liquid\CustomLiquidRegistry.cs" />
     <Compile Include="mods\IModLifecycle.cs" />
     <Compile Include="mods\ModInfo.cs" />
     <Compile Include="mods\ModLifecycleBase.cs" />
@@ -137,6 +149,10 @@
     <Compile Include="mods\ModSession.cs" />
     <Compile Include="mods\VersionedDependency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="recipe\CustomRecipeRegistry.cs" />
+    <Compile Include="recipe\patches\RecipeResultSpritePatch.cs" />
+    <Compile Include="recipe\patches\RecipesSetUpRecipesPatch.cs" />
+    <Compile Include="recipe\RecipeBuilder.cs" />
     <Compile Include="ScavLibPlugin.cs" />
     <Compile Include="util\GameUtil.cs" />
     <Compile Include="util\ItemUtil.cs" />

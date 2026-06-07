@@ -15,7 +15,7 @@ namespace ScavLib
     public class ScavLibPlugin : BaseUnityPlugin
     {
 
-        public const string Version = "0.6.0";
+        public const string Version = "0.7.0";
 
         public static ScavLibPlugin Instance { get; private set; }
         internal static ManualLogSource Log { get; private set; }
@@ -24,7 +24,6 @@ namespace ScavLib
 
         internal static readonly Dictionary<string, bool> PatchStatus
             = new Dictionary<string, bool>();
-
         internal static readonly Dictionary<string, string> PatchErrors
             = new Dictionary<string, string>();
 
@@ -40,6 +39,8 @@ namespace ScavLib
 
             CommandRegistry.Init();
             ImguiMenuManager.Init();
+
+            compat.RivalFrameworkDetector.CheckAndWarn();
 
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnFirstSceneLoaded;
 
@@ -59,16 +60,13 @@ namespace ScavLib
             UnityEngine.SceneManagement.Scene scene,
             UnityEngine.SceneManagement.LoadSceneMode mode)
         {
-
             UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnFirstSceneLoaded;
-
-            Log.LogInfo($"[ScavLib] First scene '{scene.name}' loaded �� spawning GUI hosts.");
+            Log.LogInfo($"[ScavLib] First scene '{scene.name}' loaded — spawning GUI hosts.");
             SpawnGuiHosts();
         }
 
         private void ApplyPatchesIndividually()
         {
-
             var patchTypes = new System.Type[]
             {
                 typeof(command.CommandRegistryPatch),
@@ -79,8 +77,15 @@ namespace ScavLib
                 typeof(event_bus.patches.WorldUnloadingSaveAndExitPatch),
                 typeof(event_bus.patches.ItemDropPatch),
                 typeof(event_bus.patches.ItemPickupPatch),
-                typeof(item.ItemRegistryPatch),
                 typeof(gui.ugui.UguiInputBlockerPatch),
+
+                typeof(item.patches.ItemSetupItemsPatch),
+                typeof(item.patches.UtilsCreatePatch.PosRot),
+                typeof(item.patches.UtilsCreatePatch.Parented),
+                typeof(item.patches.ConsoleSpawnAutofillPatch),
+                typeof(recipe.patches.RecipesSetUpRecipesPatch),
+                typeof(recipe.patches.RecipeResultSpritePatch),
+                typeof(i18n.patches.LocaleLoadLanguagePatch),
             };
 
             foreach (var t in patchTypes)
@@ -114,9 +119,7 @@ namespace ScavLib
             {
                 PatchStatus["ImguiHost"] = false;
                 PatchErrors["ImguiHost"] = ex.Message;
-                Log.LogError(
-                    $"[ScavLib] Failed to spawn IMGUI host: {ex.Message}. " +
-                    $"IMGUI windows will be unavailable.");
+                Log.LogError($"[ScavLib] Failed to spawn IMGUI host: {ex.Message}.");
             }
 
             try
@@ -128,9 +131,7 @@ namespace ScavLib
             {
                 PatchStatus["UguiHost"] = false;
                 PatchErrors["UguiHost"] = ex.Message;
-                Log.LogError(
-                    $"[ScavLib] Failed to spawn uGUI host: {ex.Message}. " +
-                    $"uGUI windows will be unavailable.");
+                Log.LogError($"[ScavLib] Failed to spawn uGUI host: {ex.Message}.");
             }
         }
     }
