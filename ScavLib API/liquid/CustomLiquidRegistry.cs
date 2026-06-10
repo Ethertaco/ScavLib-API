@@ -10,6 +10,8 @@ namespace ScavLib.liquid
         private static readonly Dictionary<string, (LiquidType type, string owner)> _pending
             = new Dictionary<string, (LiquidType, string)>(StringComparer.OrdinalIgnoreCase);
 
+        internal static bool LiquidsInitialized { get; set; } = false;
+
         internal static bool TryRegister(string id, LiquidType type, string owner, out string error)
         {
             error = null;
@@ -24,11 +26,22 @@ namespace ScavLib.liquid
             }
 
             _pending[id] = (type, owner);
+
+            if (LiquidsInitialized && Liquids.Registry != null)
+            {
+                Liquids.Registry[id] = type;
+                ScavLibPlugin.Log.LogInfo(
+                    $"[CustomLiquidRegistry] Late-registered liquid '{id}' into vanilla registry " +
+                    $"(owner: {owner ?? "<none>"}).");
+            }
+
             return true;
         }
 
         internal static void FlushIntoRegistry()
         {
+            LiquidsInitialized = true;
+
             if (Liquids.Registry == null) return;
             foreach (var kv in _pending)
             {

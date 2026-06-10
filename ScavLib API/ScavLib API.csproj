@@ -148,6 +148,7 @@
     <Compile Include="item\ItemTemplate.cs" />
     <Compile Include="item\patches\UtilsCreatePatch.cs" />
     <Compile Include="item\PrefabTemplateCache.cs" />
+    <Compile Include="item\VanillaSlots.cs" />
     <Compile Include="liquid\CustomLiquidBuilder.cs" />
     <Compile Include="liquid\CustomLiquidRegistry.cs" />
     <Compile Include="mods\IModLifecycle.cs" />

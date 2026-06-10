@@ -30,15 +30,7 @@ namespace ScavLib.item
             if (string.IsNullOrEmpty(item.TemplateId))
             { error = $"CustomItem '{item.Id}' has null/empty TemplateId."; Err(error); return false; }
 
-            if (ItemsInitialized && Item.GlobalItems != null &&
-                Item.GlobalItems.ContainsKey(item.Id))
-            {
-                error = $"Item id '{item.Id}' collides with a vanilla/registered " +
-                        $"GlobalItems entry. Choose a unique id (prefix with your " +
-                        $"mod name, e.g. '{item.Owner}_{item.Id}').";
-                Err(error);
-                return false;
-            }
+            bool isIdempotentReRegister = false;
 
             if (_items.TryGetValue(item.Id, out var existing))
             {
@@ -46,7 +38,8 @@ namespace ScavLib.item
                 {
                     ScavLibPlugin.Log.LogWarning(
                         $"[CustomItemRegistry] '{item.Id}' re-registered by same owner " +
-                        $"'{item.Owner}'. Overwriting previous definition.");
+                        $"'{item.Owner}'. Overwriting previous definition (idempotent).");
+                    isIdempotentReRegister = true;
                 }
                 else
                 {
@@ -56,6 +49,17 @@ namespace ScavLib.item
                     Err(error);
                     return false;
                 }
+            }
+
+            if (!isIdempotentReRegister &&
+                ItemsInitialized && Item.GlobalItems != null &&
+                Item.GlobalItems.ContainsKey(item.Id))
+            {
+                error = $"Item id '{item.Id}' collides with a vanilla/registered " +
+                        $"GlobalItems entry. Choose a unique id (prefix with your " +
+                        $"mod name, e.g. '{item.Owner}_{item.Id}').";
+                Err(error);
+                return false;
             }
 
             if (!string.IsNullOrEmpty(item.Owner) &&
@@ -97,8 +101,8 @@ namespace ScavLib.item
             }
 
             ScavLibPlugin.Log.LogInfo(
-                $"[CustomItemRegistry] Registered item '{item.Id}' " +
-                $"(owner: {item.Owner ?? "<none>"}, template: {item.TemplateId}).");
+                $"[CustomItemRegistry] {(isIdempotentReRegister ? "Re-registered" : "Registered")} " +
+                $"item '{item.Id}' (owner: {item.Owner ?? "<none>"}, template: {item.TemplateId}).");
             return true;
         }
 

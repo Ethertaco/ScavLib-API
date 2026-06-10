@@ -19,8 +19,10 @@ namespace ScavLib.item.patches
                 var template = PrefabTemplateCache.Resolve(custom.TemplateId);
                 if (template == null) return true;
 
-                __result = Object.Instantiate(template, pos, Quaternion.Euler(0f, 0f, rot)) as GameObject;
-                FinishSpawn(__result, custom, id);
+                __result = InstantiateDeferred(
+                    template,
+                    inst => Object.Instantiate(inst, pos, Quaternion.Euler(0f, 0f, rot)) as GameObject,
+                    custom, id);
                 return false;
             }
         }
@@ -38,13 +40,67 @@ namespace ScavLib.item.patches
                 var template = PrefabTemplateCache.Resolve(custom.TemplateId);
                 if (template == null) return true;
 
-                __result = Object.Instantiate(template, trans) as GameObject;
-                FinishSpawn(__result, custom, id);
+                __result = InstantiateDeferred(
+                    template,
+                    inst => Object.Instantiate(inst, trans) as GameObject,
+                    custom, id);
                 return false;
             }
         }
 
-        private static void FinishSpawn(GameObject go, CustomItem custom, string id)
+        private static GameObject InstantiateDeferred(
+            Object templateObj,
+            System.Func<Object, GameObject> instantiator,
+            CustomItem custom, string id)
+        {
+
+            var prefabGO = templateObj as GameObject;
+
+            if (prefabGO == null)
+            {
+                var fallback = instantiator(templateObj);
+                FinishSpawn(fallback, custom, id);
+                return fallback;
+            }
+
+            bool prefabWasActive = prefabGO.activeSelf;
+            GameObject clone = null;
+
+            try
+            {
+
+                if (prefabWasActive) prefabGO.SetActive(false);
+
+                clone = instantiator(prefabGO);
+                if (clone == null)
+                {
+                    ScavLibPlugin.Log.LogError(
+                        $"[UtilsCreatePatch] Object.Instantiate returned null for '{id}'.");
+                    return null;
+                }
+
+                FinishSpawn(clone, custom, id, runOnSpawn: false);
+
+                clone.SetActive(true);
+
+                try { custom.OnSpawn?.Invoke(clone); }
+                catch (System.Exception ex)
+                {
+                    ScavLibPlugin.Log.LogError(
+                        $"[UtilsCreatePatch] OnSpawn hook threw for '{id}': {ex}");
+                }
+            }
+            finally
+            {
+
+                if (prefabWasActive && prefabGO != null) prefabGO.SetActive(true);
+            }
+
+            return clone;
+        }
+
+        private static void FinishSpawn(GameObject go, CustomItem custom, string id,
+                                        bool runOnSpawn = true)
         {
             if (go == null) return;
 
@@ -67,7 +123,8 @@ namespace ScavLib.item.patches
                 tag.CustomItemId = id;
                 tag.Owner = custom.Owner;
 
-                custom.OnSpawn?.Invoke(go);
+                if (runOnSpawn)
+                    custom.OnSpawn?.Invoke(go);
             }
             catch (System.Exception ex)
             {
