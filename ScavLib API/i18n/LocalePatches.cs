@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using UnityEngine;
+using ScavLib.item;
 
 namespace ScavLib.i18n
 {
@@ -11,7 +11,9 @@ namespace ScavLib.i18n
         [HarmonyPriority(Priority.Last)]
         public static void Postfix_LoadLanguage()
         {
+
             LocaleManager.PerformInjection();
+
             SyncModItemInstances();
         }
 
@@ -30,11 +32,11 @@ namespace ScavLib.i18n
             {
                 if (Item.GlobalItems.TryGetValue(id, out ItemInfo info))
                 {
+
                     info.fullName = Locale.GetItem(id);
+
                 }
             }
         }
-
-        public static void Flush() => LocaleManager.PerformInjection();
     }
 }

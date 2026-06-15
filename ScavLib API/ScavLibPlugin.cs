@@ -18,7 +18,7 @@ namespace ScavLib
     public class ScavLibPlugin : BaseUnityPlugin
     {
 
-        public const string Version = "0.7.1";
+        public const string Version = "0.7.2";
 
         public static ScavLibPlugin Instance { get; private set; }
         internal static ManualLogSource Log { get; private set; }
