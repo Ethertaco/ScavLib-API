@@ -114,6 +114,30 @@ namespace ScavLib.command
                     LogLine($"    {name} (owner: {ownerStr})");
                 }
 
+                var keybinds = ScavLib.input.KeyBindRegistry.GetAllRegistered();
+                LogLine($"  KeyBinds (via ScavLib): {keybinds.Count}");
+
+                var byKey = new System.Collections.Generic.Dictionary<UnityEngine.KeyCode, int>();
+                foreach (var def in keybinds)
+                {
+                    var kc = KeyBinds.GetBind(def.FullId);
+                    if (kc == UnityEngine.KeyCode.None) continue;
+                    byKey[kc] = byKey.TryGetValue(kc, out var n) ? n + 1 : 1;
+                }
+
+                foreach (var def in keybinds)
+                {
+                    var kc = KeyBinds.GetBind(def.FullId);
+                    string clash = "";
+                    if (kc != UnityEngine.KeyCode.None &&
+                        byKey.TryGetValue(kc, out var n) && n > 1)
+                        clash = " [!]";
+                    string cat = string.IsNullOrEmpty(def.Category) ? "<none>" : def.Category;
+                    LogLine($"    {def.FullId} → {kc} (owner: {def.OwnerModName}, cat: {cat}){clash}");
+                }
+                if (byKey.Count != keybinds.Count)
+                    LogLine("    [!] = key shared with another binding.");
+
                 LogLine("  No conflicts detected.");
             }
         }

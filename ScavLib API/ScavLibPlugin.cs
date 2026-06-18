@@ -18,7 +18,7 @@ namespace ScavLib
     public class ScavLibPlugin : BaseUnityPlugin
     {
 
-        public const string Version = "0.7.2";
+        public const string Version = "0.7.3";
 
         public static ScavLibPlugin Instance { get; private set; }
         internal static ManualLogSource Log { get; private set; }
@@ -104,6 +104,11 @@ namespace ScavLib
 
                 typeof(save.patches.SaveGamePatch),
                 typeof(save.patches.TryLoadGamePatch),
+
+                typeof(input.patches.SettingsDefaultsPatch),
+                typeof(input.patches.SettingsLoadPostPatch),
+                typeof(input.patches.SettingsMenuTabPatch),
+
             };
 
             foreach (var t in patchTypes)
@@ -151,6 +156,19 @@ namespace ScavLib
                 PatchErrors["UguiHost"] = ex.Message;
                 Log.LogError($"[ScavLib] Failed to spawn uGUI host: {ex.Message}.");
             }
+
+            try
+            {
+                input.KeyBindHost.EnsureSpawned();
+                PatchStatus["KeyBindHost"] = true;
+            }
+            catch (System.Exception ex)
+            {
+                PatchStatus["KeyBindHost"] = false;
+                PatchErrors["KeyBindHost"] = ex.Message;
+                Log.LogError($"[ScavLib] Failed to spawn KeyBindHost: {ex.Message}.");
+            }
+
         }
     }
 }
