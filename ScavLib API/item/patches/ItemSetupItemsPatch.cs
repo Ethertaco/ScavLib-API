@@ -23,6 +23,9 @@ namespace ScavLib.item.patches
         {
             try
             {
+
+                CustomItemBuilder.FlushPending();
+
                 CustomItemRegistry.FlushIntoGlobalItems();
                 ItemLootPool.InitializePool();
             }

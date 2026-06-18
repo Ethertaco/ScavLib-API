@@ -9,6 +9,11 @@ namespace ScavLib.item
 
     public class CustomItemBuilder
     {
+
+        private static readonly List<CustomItemBuilder> _pending
+            = new List<CustomItemBuilder>();
+        private bool _queued;
+
         private readonly string _id;
         private readonly string _owner;
         private string _templateId;
@@ -324,6 +329,17 @@ namespace ScavLib.item
             var vanilla = ResolveVanillaInfo(_templateId);
             if (vanilla == null)
             {
+
+                if (Item.GlobalItems == null && !_queued)
+                {
+                    _queued = true;
+                    _pending.Add(this);
+                    ScavLibPlugin.Log.LogInfo(
+                        $"[CustomItemBuilder] Deferring registration of '{_id}' " +
+                        $"(template '{_templateId}') until Item.SetupItems has run.");
+                    return true;
+                }
+
                 error = $"Cannot resolve vanilla ItemInfo for template '{_templateId}'. " +
                         $"Either Item.SetupItems hasn't run yet AND the prefab has no " +
                         $"serialized info field, or the template id is wrong. " +
@@ -393,6 +409,41 @@ namespace ScavLib.item
             return CustomItemRegistry.TryRegister(item, out error);
         }
 
+        internal static void FlushPending()
+        {
+            if (_pending.Count == 0) return;
+
+            var snapshot = new List<CustomItemBuilder>(_pending);
+            _pending.Clear();
+
+            int ok = 0, fail = 0;
+            foreach (var b in snapshot)
+            {
+                b._queued = false;
+                try
+                {
+                    if (b.Register(out var err)) ok++;
+                    else
+                    {
+                        fail++;
+                        ScavLibPlugin.Log.LogError(
+                            $"[CustomItemBuilder] Deferred registration of '{b._id}' " +
+                            $"failed after SetupItems: {err}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    fail++;
+                    ScavLibPlugin.Log.LogError(
+                        $"[CustomItemBuilder] Deferred registration of '{b._id}' threw: {ex}");
+                }
+            }
+
+            ScavLibPlugin.Log.LogInfo(
+                $"[CustomItemBuilder] FlushPending: {ok} ok, {fail} failed " +
+                $"(of {snapshot.Count} deferred).");
+        }
+
         private static ItemInfo ResolveVanillaInfo(string templateId)
         {
             if (string.IsNullOrEmpty(templateId)) return null;
@@ -440,7 +491,7 @@ namespace ScavLib.item
             foreach (var f in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 try { f.SetValue(dst, f.GetValue(src)); }
-                catch {  }
+                catch { }
             }
 
             if (dst.qualities != null)
