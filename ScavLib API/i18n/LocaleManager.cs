@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -154,6 +154,10 @@ namespace ScavLib.i18n
                 else if (entry.Value.Count > 0)
                 {
                     target[entry.Key] = entry.Value.Values.First();
+                    if (target[entry.Key] != null)
+                    {
+                        target[entry.Key] = text;
+                    }
                 }
             }
         }
@@ -178,8 +182,11 @@ namespace ScavLib.i18n
             RegisteredItemIds.Add(id);
             if (names != null) ManualItems[id] = names;
             if (descs != null) ManualOthers[id + "dsc"] = descs;
+            // fixes it on item load
+            Locale.currentLang.main[id] = names[GetGameLanguageCode()];
         }
 
+        
         public static void RegisterString(string key, IReadOnlyDictionary<string, string> translations)
         {
             if (translations != null) ManualOthers[key] = translations;
