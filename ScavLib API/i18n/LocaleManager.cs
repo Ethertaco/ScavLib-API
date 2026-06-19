@@ -176,7 +176,7 @@ namespace ScavLib.i18n
         public static void RegisterItem(string id, IReadOnlyDictionary<string, string> names, IReadOnlyDictionary<string, string> descs = null)
         {
             RegisteredItemIds.Add(id);
-            if (names != null) ManualItems[id] = names;
+            if (names != null) Locale.currentLang.main[id] = names[GetGameLanguageCode()];
             if (descs != null) ManualOthers[id + "dsc"] = descs;
         }
 
