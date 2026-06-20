@@ -3,10 +3,28 @@ using System.Collections.Generic;
 
 namespace ScavLib.command
 {
-
+    /// <summary>
+    /// Central injection point for ScavLib-managed console commands.
+    ///
+    /// <para>Maintains three internal tables:
+    /// <list type="bullet">
+    ///   <item><description><b>_pending</b> — commands queued before
+    ///   <c>ConsoleScript.instance</c> existed; flushed by
+    ///   <see cref="CommandRegistryPatch"/>.</description></item>
+    ///   <item><description><b>_ownerMap</b> — command name → owning mod display name,
+    ///   used by <see cref="GetOwner"/> and the <c>scavlib check</c> diagnostic.</description></item>
+    ///   <item><description><b>_injected</b> — command name → the actual game
+    ///   <see cref="Command"/> instance we Added to <c>ConsoleScript.Commands</c>.
+    ///   Needed because <see cref="Unregister"/> removes by reference.</description></item>
+    /// </list></para>
+    ///
+    /// <para>Vanilla protection is implicit: a command is removable only if it
+    /// appears in <c>_injected</c>. Game-native commands are never put there,
+    /// so they cannot be deleted through <see cref="Unregister"/>. No
+    /// hardcoded protection list is required.</para>
+    /// </summary>
     public static class CommandRegistry
     {
-
         private static readonly List<(BaseCommand cmd, string owner)> _pending
             = new List<(BaseCommand, string)>();
 
@@ -16,16 +34,37 @@ namespace ScavLib.command
         private static readonly Dictionary<string, Command> _injected
             = new Dictionary<string, Command>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>Reserved bootstrap hook. Currently a no-op.</summary>
         internal static void Init()
         {
-
         }
 
+        // --- register -------------------------------------------------------------
+
+        /// <summary>
+        /// Convenience overload that registers without an owner string and
+        /// discards the failure reason. Equivalent to
+        /// <c>TryRegister(command, null, out _)</c>.
+        /// </summary>
         public static void Register(BaseCommand command)
         {
             TryRegister(command, null, out _);
         }
 
+        /// <summary>
+        /// Register a command with explicit ownership and detailed failure info.
+        /// </summary>
+        /// <param name="command">The command to register. Null is rejected.</param>
+        /// <param name="ownerModName">
+        /// Display name of the owning mod (recommended: same string used in
+        /// <c>ModRegistry.Register</c>). Pass <c>null</c> to opt out of the
+        /// owner ledger — registration still succeeds.
+        /// </param>
+        /// <param name="error">Reason on failure, or <c>null</c> on success.</param>
+        /// <returns>
+        /// <c>true</c> when the command is either injected immediately or
+        /// queued for later flush; <c>false</c> when validation rejected it.
+        /// </returns>
         public static bool TryRegister(BaseCommand command, string ownerModName,
                                        out string error)
         {
@@ -44,6 +83,9 @@ namespace ScavLib.command
                 return false;
             }
 
+            // Refuse the SubCommands + bool/position-first-arg combination:
+            // vanilla Command ctor will Add() autofill for that index, then
+            // MergeSubCommandAutofill would Add() the same index again and throw.
             if (command.SubCommands != null && command.SubCommands.Count > 0)
             {
                 var argDesc = command.ArgDescription;
@@ -77,6 +119,18 @@ namespace ScavLib.command
             return true;
         }
 
+        // --- unregister -----------------------------------------------------------
+
+        /// <summary>
+        /// Remove a previously-ScavLib-registered command from
+        /// <c>ConsoleScript.Commands</c>. Pending (un-injected) commands are
+        /// also handled.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if a command was actually removed. <c>false</c> when
+        /// the name is empty, unknown, or refers to a game-native command
+        /// (those are not in the ledger and are therefore protected).
+        /// </returns>
         public static bool Unregister(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -116,12 +170,23 @@ namespace ScavLib.command
             return true;
         }
 
+        // --- queries --------------------------------------------------------------
+
+        /// <summary>
+        /// Owner mod name for a ScavLib-registered command, or <c>null</c>
+        /// when the command is unknown to ScavLib (i.e. game-native, or
+        /// registered without an owner string).
+        /// </summary>
         public static string GetOwner(string name)
         {
             if (string.IsNullOrEmpty(name)) return null;
             return _ownerMap.TryGetValue(name, out var owner) ? owner : null;
         }
 
+        /// <summary>
+        /// Snapshot of all commands ScavLib has injected, paired with their
+        /// owner (which may be <c>null</c>). Order is unspecified.
+        /// </summary>
         public static IReadOnlyList<(string name, string owner)> GetAllRegistered()
         {
             var result = new List<(string, string)>();
@@ -130,6 +195,15 @@ namespace ScavLib.command
             return result;
         }
 
+        // --- injection ------------------------------------------------------------
+
+        /// <summary>
+        /// Drain the pending queue. Invoked by <see cref="CommandRegistryPatch"/>
+        /// in the Postfix of <c>ConsoleScript.Start</c>, which itself runs only
+        /// after vanilla <c>RegisterAllCommands</c> (the latter is gated on
+        /// <c>Commands.Count == 0</c>), so duplicate-name checks here see the
+        /// full vanilla list.
+        /// </summary>
         public static void FlushPending()
         {
             foreach (var (cmd, owner) in _pending)
@@ -155,6 +229,9 @@ namespace ScavLib.command
                 return false;
             }
 
+            // Merge BEFORE handing the dictionary to the game ctor — the ctor
+            // does argAutofill.Add(i, ...) for bool/position prefixes and
+            // throws on duplicate keys.
             var mergedAutofill = MergeSubCommandAutofill(command);
 
             try
@@ -184,6 +261,13 @@ namespace ScavLib.command
             }
         }
 
+        /// <summary>
+        /// Build the autofill dictionary handed to the vanilla
+        /// <see cref="Command"/> constructor. Starts from a defensive copy of
+        /// the user's <see cref="BaseCommand.ArgAutofill"/> (so the mod's own
+        /// data is never mutated) and merges <see cref="BaseCommand.SubCommands"/>
+        /// keys into index 0, deduped.
+        /// </summary>
         private static Dictionary<int, List<string>> MergeSubCommandAutofill(
             BaseCommand command)
         {
@@ -199,7 +283,6 @@ namespace ScavLib.command
 
             if (subs != null && subs.Count > 0)
             {
-
                 List<string> existing;
                 if (!result.TryGetValue(0, out existing))
                     existing = null;
@@ -220,6 +303,12 @@ namespace ScavLib.command
             return result;
         }
 
+        /// <summary>
+        /// Wrap user code so we can attribute exceptions to the owning mod
+        /// in our own log channel. The exception is re-thrown so the vanilla
+        /// console's own try/catch still produces the inline error message
+        /// the player sees.
+        /// </summary>
         private static void SafeExecute(BaseCommand command, string[] args)
         {
             try
