@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -178,7 +178,27 @@ namespace ScavLib.i18n
             RegisteredItemIds.Add(id);
             if (names != null) ManualItems[id] = names;
             if (descs != null) ManualOthers[id + "dsc"] = descs;
+
+            // If the language is already loaded, flush this entry immediately so
+            // mods registering after LoadLanguage still get correct display names.
+            if (Locale.currentLang == null) return;
+            string lang = GetGameLanguageCode();
+            if (names != null && TryResolve(names, lang, out var nameText))
+                Locale.currentLang.main[id] = nameText;
+            if (descs != null && TryResolve(descs, lang, out var descText))
+                Locale.currentLang.other[id + "dsc"] = descText;
+            LocalePatches.SyncModItemInstances();
         }
+
+        private static bool TryResolve(IReadOnlyDictionary<string, string> dict, string lang, out string text)
+        {
+            if (dict.TryGetValue(lang, out text)) return true;
+            if (dict.TryGetValue("EN", out text)) return true;
+            if (dict.TryGetValue("English", out text)) return true;
+            text = dict.Values.FirstOrDefault();
+            return text != null;
+        }
+
 
         public static void RegisterString(string key, IReadOnlyDictionary<string, string> translations)
         {
