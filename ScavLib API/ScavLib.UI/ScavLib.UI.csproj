@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{94A4A221-3C31-4925-832C-191922B3603C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ScavLib</RootNamespace>
+    <AssemblyName>ScavLib API.UI</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\BepInEx\core\0Harmony.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="BepInEx">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\BepInEx\core\BepInEx.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="KrokoshaCasualtiesMP">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\KrokoshaCasualtiesMP.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Unity.TextMeshPro">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.UI.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+    <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+    <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="gui\GuiModule.cs" />
+    <Compile Include="gui\imgui\ImguiMenuBuilder.cs" />
+    <Compile Include="gui\imgui\ImguiMenuManager.cs" />
+    <Compile Include="gui\imgui\ImguiMenuManagerPatch.cs" />
+    <Compile Include="gui\imgui\ImguiWindow.cs" />
+    <Compile Include="gui\ugui\ResourceLookupCache.cs" />
+    <Compile Include="gui\ugui\UguiBuilder.cs" />
+    <Compile Include="gui\ugui\UguiFontManager.cs" />
+    <Compile Include="gui\ugui\UguiHorizontalRow.cs" />
+    <Compile Include="gui\ugui\UguiHost.cs" />
+    <Compile Include="gui\ugui\UguiInputBlockerPatch.cs" />
+    <Compile Include="gui\ugui\UguiNumberField.cs" />
+    <Compile Include="gui\ugui\UguiOverlayLayer.cs" />
+    <Compile Include="gui\ugui\UguiPixelBar.cs" />
+    <Compile Include="gui\ugui\UguiStyleApplier.cs" />
+    <Compile Include="gui\ugui\UguiTabView.cs" />
+    <Compile Include="gui\ugui\UguiTheme.Metrics.cs" />
+    <Compile Include="gui\ugui\UguiTheme.Palette.cs" />
+    <Compile Include="gui\ugui\UguiTheme.Sprites.cs" />
+    <Compile Include="gui\ugui\UguiTheme.Typography.cs" />
+    <Compile Include="gui\ugui\UguiTheme.With.cs" />
+    <Compile Include="gui\ugui\UguiTheme.cs" />
+    <Compile Include="gui\ugui\UguiToggleGroup.cs" />
+    <Compile Include="gui\ugui\UguiWindowBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ScavLib API.csproj">
+      <Project>{7CA6ED74-355F-42F3-B733-F28F1A35E2AA}</Project>
+      <Name>ScavLib API</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

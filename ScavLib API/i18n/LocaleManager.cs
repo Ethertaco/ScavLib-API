@@ -179,8 +179,6 @@ namespace ScavLib.i18n
             if (names != null) ManualItems[id] = names;
             if (descs != null) ManualOthers[id + "dsc"] = descs;
 
-            // If the language is already loaded, flush this entry immediately so
-            // mods registering after LoadLanguage still get correct display names.
             if (Locale.currentLang == null) return;
             string lang = GetGameLanguageCode();
             if (names != null && TryResolve(names, lang, out var nameText))
@@ -198,7 +196,6 @@ namespace ScavLib.i18n
             text = dict.Values.FirstOrDefault();
             return text != null;
         }
-
 
         public static void RegisterString(string key, IReadOnlyDictionary<string, string> translations)
         {
