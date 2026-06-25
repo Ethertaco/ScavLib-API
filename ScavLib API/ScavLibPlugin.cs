@@ -15,7 +15,7 @@ namespace ScavLib
     [BepInDependency("KrokoshaCasualtiesMP", BepInDependency.DependencyFlags.SoftDependency)]
     public class ScavLibPlugin : BaseUnityPlugin
     {
-        public const string Version = "0.7.3";
+        public const string Version = "0.8.0";
 
         public static ScavLibPlugin Instance { get; private set; }
 
@@ -85,7 +85,7 @@ namespace ScavLib
             // Register the library's own console command.
             CommandRegistry.TryRegister(new ScavLibCommand(), SelfModName, out _);
 
-            Log.LogInfo($"ScavLib {Version} loaded successfully with i18n 2.0.");
+            Log.LogInfo($"ScavLib {Version} loaded successfully.");
         }
 
         private void OnFirstSceneLoaded(

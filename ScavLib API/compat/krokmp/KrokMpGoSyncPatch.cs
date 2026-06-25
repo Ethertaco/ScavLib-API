@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using HarmonyLib;
 using KrokoshaCasualtiesMP;
 using ScavLib.item;
@@ -6,55 +7,67 @@ using UnityEngine;
 
 namespace ScavLib.compat.krokmp
 {
-    [HarmonyPatch(typeof(GOSyncPacket), "Apply")]
+
+    [HarmonyPatch]
     internal static class KrokMpGoSyncPatch
     {
-        [HarmonyPrefix]
-        private static bool Prefix(ref GOSyncPacket __instance, string resource_stringid, uint request_response, ref SyncInfo __result)
+        private static MethodBase TargetMethod()
         {
-
-            CustomItem custom;
-            if (!CustomItemRegistry.TryGet(resource_stringid, out custom))
+            var t = AccessTools.TypeByName(
+                "KrokoshaCasualtiesMP.NewCoolerObjectPacketWriteReadSystem");
+            if (t == null)
             {
+                ScavLibPlugin.Log.LogWarning(
+                    "[KrokMpGoSyncPatch] NewCoolerObjectPacketWriteReadSystem not found; " +
+                    "custom items will not be visible to remote KrokMP clients.");
+                return null;
+            }
+            var m = AccessTools.Method(t, "LoadObjectResource");
+            if (m == null)
+            {
+                ScavLibPlugin.Log.LogWarning(
+                    "[KrokMpGoSyncPatch] LoadObjectResource(string, in Vector2) not found.");
+            }
+            return m;
+        }
+
+        private static bool Prefix(string resourceid, ref Vector2 pos,
+                                   ref GameObject __result)
+        {
+            if (!CustomItemRegistry.TryGet(resourceid, out CustomItem custom))
                 return true;
-            }
 
-            if (request_response != 0U)
-            {
-                GameObject requested = NetObjectRegistry.Client_GetRequestedExistenceObjFromId(request_response);
-                if (requested != null) return true;
-            }
-            if (__instance.GetSyncInfo() != null) return true;
-
-            UnityEngine.Object template = PrefabTemplateCache.Resolve(custom.TemplateId);
+            var template = PrefabTemplateCache.Resolve(custom.TemplateId);
             if (template == null)
             {
-                ScavLibPlugin.Log.LogError($"[KrokMpGoSyncPatch] Failed to resolve template '{custom.TemplateId}' for item '{resource_stringid}'.");
+                ScavLibPlugin.Log.LogError(
+                    $"[KrokMpGoSyncPatch] Cannot resolve template " +
+                    $"'{custom.TemplateId}' for custom id '{resourceid}'.");
                 __result = null;
                 return false;
             }
 
-            GameObject go = UnityEngine.Object.Instantiate(template, __instance.pos, Quaternion.Euler(0f, 0f, __instance.angle)) as GameObject;
-            go.transform.localScale = new Vector3(__instance.scale_x, __instance.scale_y, go.transform.localScale.z);
+            var go = UnityEngine.Object.Instantiate(template, pos, Quaternion.identity) as GameObject;
+            if (go == null) { __result = null; return false; }
 
-            Item itemComp = go.GetComponent<Item>();
-            if (itemComp != null)
-            {
-                itemComp.id = resource_stringid;
-            }
+            if (go.TryGetComponent<Item>(out var itemComp))
+                itemComp.id = resourceid;
 
-            CustomItemTag tag = go.AddComponent<CustomItemTag>();
-            tag.CustomItemId = resource_stringid;
+            var tag = go.AddComponent<CustomItemTag>();
+            tag.CustomItemId = resourceid;
             tag.Owner = custom.Owner;
+
             if (custom.OnSpawn != null)
             {
-                try { custom.OnSpawn(go); } catch (Exception e) { ScavLibPlugin.Log.LogError($"OnSpawn hook error: {e}"); }
+                try { custom.OnSpawn(go); }
+                catch (Exception e)
+                {
+                    ScavLibPlugin.Log.LogError(
+                        $"[KrokMpGoSyncPatch] OnSpawn for '{resourceid}' threw: {e}");
+                }
             }
 
-            SyncInfo si = NetObjectRegistry._RegisterGO(go, __instance.net_syncid);
-            __instance.ApplyDirect(si);
-
-            __result = si;
+            __result = go;
             return false;
         }
     }

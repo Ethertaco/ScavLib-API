@@ -1,0 +1,3 @@
+{
+  "_comment": "Trap localizations. Keys must match TrapBase.id + (\"\" | \"dsc\")."
+}

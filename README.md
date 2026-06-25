@@ -1,4 +1,4 @@
-**Current Version: 0.7.5 Stable**
+**Current Version: 0.9.0 Snapshot 1**
 
 [Source (DLL repository)](https://github.com/Kanisuko/ScavLib-API-DLL-Repository)
 
